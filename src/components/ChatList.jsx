@@ -1,284 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSliders } from "react-icons/fi";
-
-
-const mockChats = [
-  {
-    id: 1,
-    name: 'Alex Johnson',
-    lastMessage: 'Hey, about the project deadline...',
-    time: '10:30 AM',
-    unread: 3,
-    isOnline: true,
-    viewed: false,
-    isPinned: true,
-    avatarColor: 'bg-blue-100 text-blue-800',
-    lastActive: '2 mins ago',
-    status: 'Project Manager',
-    messages: [
-      { id: 1, text: 'Hi there!', time: '9:15 AM', sender: 'them' },
-      { id: 2, text: 'How are you doing?', time: '9:16 AM', sender: 'them' },
-      { id: 3, text: "I'm good, thanks! How about you?", time: '9:30 AM', sender: 'me' },
-      { id: 4, text: 'Hey, about the project deadline...', time: '10:30 AM', sender: 'them' }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Sarah Williams',
-    lastMessage: 'The design files are ready for review',
-    time: 'Yesterday',
-    unread: 0,
-    isOnline: false,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-teal-100 text-teal-800',
-    lastActive: '1 hour ago',
-    status: 'UI/UX Designer',
-    messages: [
-      { id: 1, text: 'Working on those designs', time: 'Yesterday, 2:45 PM', sender: 'them' },
-      { id: 2, text: 'When do you think they will be ready?', time: 'Yesterday, 3:10 PM', sender: 'me' },
-      { id: 3, text: 'The design files are ready for review', time: 'Yesterday, 4:30 PM', sender: 'them' }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Michael Chen',
-    lastMessage: 'Meeting notes from today',
-    time: 'Yesterday',
-    unread: 1,
-    isOnline: true,
-    viewed: false,
-    isPinned: true,
-    avatarColor: 'bg-indigo-100 text-indigo-800',
-    lastActive: '30 mins ago',
-    status: 'Developer',
-    messages: [
-      { id: 1, text: 'Can we sync up about the API?', time: 'Yesterday, 11:20 AM', sender: 'them' },
-      { id: 2, text: 'Sure, what time works for you?', time: 'Yesterday, 11:45 AM', sender: 'me' },
-      { id: 3, text: 'Meeting notes from today', time: 'Yesterday, 5:15 PM', sender: 'them' }
-    ]
-  },
-  {
-    id: 4,
-    name: 'Emma Davis',
-    lastMessage: 'Thanks for your help with the issue!',
-    time: '2 days ago',
-    unread: 0,
-    isOnline: false,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-purple-100 text-purple-800',
-    lastActive: '5 hours ago',
-    status: 'QA Engineer',
-    messages: [
-      { id: 1, text: 'Found an issue with the login flow', time: '2 days ago, 9:00 AM', sender: 'them' },
-      { id: 2, text: 'Looking into it now', time: '2 days ago, 9:30 AM', sender: 'me' },
-      { id: 3, text: 'Fixed! Should be working now', time: '2 days ago, 11:45 AM', sender: 'me' },
-      { id: 4, text: 'Thanks for your help with the issue!', time: '2 days ago, 12:30 PM', sender: 'them' }
-    ]
-  },
-  {
-    id: 5,
-    name: 'David Wilson',
-    lastMessage: 'The budget has been approved',
-    time: '3 days ago',
-    unread: 0,
-    isOnline: false,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-cyan-100 text-cyan-800',
-    lastActive: '1 day ago',
-    status: 'Finance Director',
-    messages: [
-      { id: 1, text: 'I need approval for the Q3 budget', time: '3 days ago, 10:00 AM', sender: 'me' },
-      { id: 2, text: 'Reviewing it now', time: '3 days ago, 2:30 PM', sender: 'them' },
-      { id: 3, text: 'The budget has been approved', time: '3 days ago, 4:45 PM', sender: 'them' }
-    ]
-  },
-  {
-    id: 6,
-    name: 'Olivia Martinez',
-    lastMessage: 'Can you send me the client requirements?',
-    time: '4 days ago',
-    unread: 2,
-    isOnline: true,
-    viewed: false,
-    isPinned: false,
-    avatarColor: 'bg-sky-100 text-sky-800',
-    lastActive: '15 mins ago',
-    status: 'Account Manager',
-    messages: [
-      { id: 1, text: 'We have a new client onboarding', time: '4 days ago, 9:00 AM', sender: 'them' },
-      { id: 2, text: 'Great! What are their requirements?', time: '4 days ago, 9:15 AM', sender: 'me' },
-      { id: 3, text: 'Can you send me the client requirements?', time: '4 days ago, 3:30 PM', sender: 'them' }
-    ]
-  },
-  {
-    id: 7,
-    name: 'James Taylor',
-    lastMessage: 'The server migration is complete',
-    time: '1 week ago',
-    unread: 0,
-    isOnline: false,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-blue-100 text-blue-800',
-    lastActive: '2 days ago',
-    status: 'DevOps Engineer',
-    messages: [
-      { id: 1, text: 'Starting server migration tonight', time: '1 week ago, 5:00 PM', sender: 'them' },
-      { id: 2, text: 'How long will it take?', time: '1 week ago, 5:30 PM', sender: 'me' },
-      { id: 3, text: 'About 4 hours, with some downtime', time: '1 week ago, 6:00 PM', sender: 'them' },
-      { id: 4, text: 'The server migration is complete', time: '1 week ago, 10:30 PM', sender: 'them' }
-    ]
-  },
-  {
-    id: 8,
-    name: 'Sophia Anderson',
-    lastMessage: 'Your vacation request was approved',
-    time: '2 weeks ago',
-    unread: 0,
-    isOnline: false,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-teal-100 text-teal-800',
-    lastActive: '3 days ago',
-    status: 'HR Manager',
-    messages: [
-      { id: 1, text: 'I submitted a vacation request', time: '2 weeks ago, 9:00 AM', sender: 'me' },
-      { id: 2, text: 'We received it, reviewing now', time: '2 weeks ago, 11:00 AM', sender: 'them' },
-      { id: 3, text: 'Your vacation request was approved', time: '2 weeks ago, 3:00 PM', sender: 'them' }
-    ]
-  },
-  {
-    id: 9,
-    name: 'Marketing Team',
-    lastMessage: 'New campaign performance metrics attached',
-    time: 'Just now',
-    unread: 5,
-    isOnline: true,
-    viewed: false,
-    isPinned: true,
-    avatarColor: 'bg-indigo-100 text-indigo-800',
-    lastActive: 'Just now',
-    status: 'Group Chat',
-    messages: [
-      { id: 1, text: 'Let me share the new campaign ideas', time: 'Today, 9:00 AM', sender: 'them' },
-      { id: 2, text: 'These look great!', time: 'Today, 9:30 AM', sender: 'me' },
-      { id: 3, text: 'When will we launch?', time: 'Today, 10:00 AM', sender: 'them' },
-      { id: 4, text: 'New campaign performance metrics attached', time: 'Just now', sender: 'them' }
-    ]
-  },
-  {
-    id: 10,
-    name: 'Support Ticket #4521',
-    lastMessage: 'Your issue has been escalated to tier 2',
-    time: '30 mins ago',
-    unread: 1,
-    isOnline: true,
-    viewed: false,
-    isPinned: false,
-    avatarColor: 'bg-purple-100 text-purple-800',
-    lastActive: '30 mins ago',
-    status: 'High Priority',
-    messages: [
-      { id: 1, text: 'I have an issue with my account', time: 'Today, 8:00 AM', sender: 'me' },
-      { id: 2, text: 'We are looking into it', time: 'Today, 8:30 AM', sender: 'them' },
-      { id: 3, text: 'Your issue has been escalated to tier 2', time: '30 mins ago', sender: 'them' }
-    ]
-  },
-  {
-    id: 11,
-    name: 'Robert Garcia',
-    lastMessage: 'The client loved the presentation!',
-    time: '1 hour ago',
-    unread: 0,
-    isOnline: true,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-cyan-100 text-cyan-800',
-    lastActive: '20 mins ago',
-    status: 'Sales Executive',
-    messages: [
-      { id: 1, text: 'Preparing for the client meeting', time: 'Today, 9:00 AM', sender: 'them' },
-      { id: 2, text: 'Good luck! Let me know how it goes', time: 'Today, 9:15 AM', sender: 'me' },
-      { id: 3, text: 'The client loved the presentation!', time: '1 hour ago', sender: 'them' }
-    ]
-  },
-  {
-    id: 12,
-    name: 'Lisa Thompson',
-    lastMessage: 'Can we reschedule our meeting?',
-    time: '3 hours ago',
-    unread: 2,
-    isOnline: false,
-    viewed: false,
-    isPinned: false,
-    avatarColor: 'bg-sky-100 text-sky-800',
-    lastActive: '4 hours ago',
-    status: 'Product Manager',
-    messages: [
-      { id: 1, text: 'About our 2pm meeting tomorrow', time: 'Today, 11:00 AM', sender: 'them' },
-      { id: 2, text: 'Yes, what about it?', time: 'Today, 11:30 AM', sender: 'me' },
-      { id: 3, text: 'Can we reschedule our meeting?', time: '3 hours ago', sender: 'them' }
-    ]
-  },
-  {
-    id: 13,
-    name: 'Daniel Kim',
-    lastMessage: 'The analytics dashboard is ready',
-    time: '5 hours ago',
-    unread: 0,
-    isOnline: false,
-    viewed: true,
-    isPinned: true,
-    avatarColor: 'bg-blue-100 text-blue-800',
-    lastActive: '6 hours ago',
-    status: 'Data Analyst',
-    messages: [
-      { id: 1, text: 'Working on the analytics dashboard', time: 'Yesterday, 4:00 PM', sender: 'them' },
-      { id: 2, text: 'When will it be ready?', time: 'Yesterday, 4:30 PM', sender: 'me' },
-      { id: 3, text: 'The analytics dashboard is ready', time: '5 hours ago', sender: 'them' }
-    ]
-  },
-  {
-    id: 14,
-    name: 'Jennifer Lee',
-    lastMessage: 'Thanks for the quick response!',
-    time: 'Yesterday',
-    unread: 0,
-    isOnline: true,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-teal-100 text-teal-800',
-    lastActive: '45 mins ago',
-    status: 'Customer Support',
-    messages: [
-      { id: 1, text: 'I have a question about the subscription', time: 'Yesterday, 2:00 PM', sender: 'them' },
-      { id: 2, text: 'Sure, what would you like to know?', time: 'Yesterday, 2:05 PM', sender: 'me' },
-      { id: 3, text: 'Thanks for the quick response!', time: 'Yesterday, 2:30 PM', sender: 'them' }
-    ]
-  },
-  {
-    id: 15,
-    name: 'Thomas Brown',
-    lastMessage: 'The new feature is deployed to staging',
-    time: '2 days ago',
-    unread: 1,
-    isOnline: false,
-    viewed: false,
-    isPinned: false,
-    avatarColor: 'bg-indigo-100 text-indigo-800',
-    lastActive: '1 day ago',
-    status: 'Tech Lead',
-    messages: [
-      { id: 1, text: 'Working on the new feature deployment', time: '2 days ago, 10:00 AM', sender: 'them' },
-      { id: 2, text: 'Keep me updated on progress', time: '2 days ago, 10:30 AM', sender: 'me' },
-      { id: 3, text: 'The new feature is deployed to staging', time: '2 days ago, 4:00 PM', sender: 'them' }
-    ]
-  }
-];
 
 const ChatList = ({ 
   chats, 
@@ -287,11 +8,9 @@ const ChatList = ({
   setActiveChat,
   setShowSidebar 
 }) => {
-  const [activeFilter, setActiveFilter] = useState('open');
   const [selectedChats, setSelectedChats] = useState([]);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeIcon, setActiveIcon] = useState(0);
 
   // Initialize with mock data if empty
   useEffect(() => {
@@ -305,21 +24,8 @@ const ChatList = ({
     return () => clearTimeout(timer);
   }, [chats.length, setChats]);
 
-  // Icon animation effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIcon(prev => (prev + 1) % 2);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Counts for different chat states
-  const openChatsCount = chats.filter(chat => !chat.viewed || chat.unread > 0).length;
-  const waitingChatsCount = chats.filter(chat => chat.viewed && chat.unread === 0).length;
-
   const handleChatClick = useCallback((chatId, e) => {
     if (isSelectMode) {
-      // Handle multi-select
       setSelectedChats(prev => 
         prev.includes(chatId) 
           ? prev.filter(id => id !== chatId) 
@@ -328,7 +34,6 @@ const ChatList = ({
       return;
     }
 
-    // Mark as viewed when clicked but don't change the filter tab
     setChats(prevChats => 
       prevChats.map(chat => 
         chat.id === chatId 
@@ -337,7 +42,6 @@ const ChatList = ({
       )
     );
 
-    // Smooth transition to active chat
     setTimeout(() => {
       setActiveChat(chatId);
       if (window.innerWidth < 768) {
@@ -383,27 +87,28 @@ const ChatList = ({
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className="w-full md:w-1/4 bg-slate-50 flex flex-col h-full overflow-hidden rounded-2xl border border-slate-200 font-sans"
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full md:w-1/4 flex flex-col h-full overflow-hidden font-sans bg-gradient-to-b from-blue-50 to-blue-100 text-gray-800 rounded-xl"
     >
       {/* Header with actions */}
-      <div className="p-4 flex items-center justify-between bg-slate-50 border-b border-slate-200 sticky top-0 z-20 rounded-t-2xl">
+      <div className="p-4 flex items-center justify-between bg-white/80 backdrop-blur-sm border-b border-blue-200 rounded-t-xl sticky top-0 z-20">
         <div className="flex items-center space-x-2">
           {isSelectMode ? (
             <>
               <motion.button 
                 onClick={toggleSelectMode}
-                whileTap={{ scale: 0.95 }}
-                className="p-2 rounded-full hover:bg-slate-100 transition-colors"
+                whileTap={{ scale: 0.92 }}
+                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all"
               >
-                <svg className="h-5 w-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
                 </svg>
               </motion.button>
               <motion.span 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-sm font-medium text-slate-700"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ type: "spring" }}
+                className="text-sm font-medium text-blue-600"
               >
                 {selectedChats.length} selected
               </motion.span>
@@ -412,34 +117,32 @@ const ChatList = ({
             <motion.h1 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-lg font-semibold text-slate-800"
+              className="text-lg font-semibold text-blue-800"
             >
-              Messages
+              Conversations
             </motion.h1>
           )}
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
           {isSelectMode ? (
             <>
               <motion.button 
                 onClick={archiveSelected}
-                whileTap={{ scale: 0.95 }}
-                className="p-2 rounded-full hover:bg-slate-100 transition-colors"
-                title="Archive"
+                whileTap={{ scale: 0.92 }}
+                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all"
               >
-                <svg className="h-5 w-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M20.54,5.23L19.15,3.55C18.88,3.21 18.47,3 18,3H6C5.53,3 5.12,3.21 4.84,3.55L3.46,5.23C3.17,5.57 3,6.02 3,6.5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V6.5C21,6.02 20.83,5.57 20.54,5.23M6.24,5H17.76L18.18,5.5L17.12,6.5L6.89,6.5L5.82,5.5L6.24,5M5,19V8H19V19H5Z" />
                 </svg>
               </motion.button>
               <motion.button 
                 onClick={deleteSelected}
-                whileTap={{ scale: 0.95 }}
-                className="p-2 rounded-full hover:bg-slate-100 transition-colors"
-                title="Delete"
+                whileTap={{ scale: 0.92 }}
+                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all"
               >
-                <svg className="h-5 w-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
                 </svg>
               </motion.button>
             </>
@@ -447,22 +150,20 @@ const ChatList = ({
             <>
               <motion.button 
                 onClick={toggleSelectMode}
-                whileTap={{ scale: 0.95 }}
-                className="p-2 rounded-full hover:bg-slate-100 transition-colors"
-                title="Select messages"
+                whileTap={{ scale: 0.92 }}
+                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all"
               >
-                <svg className="h-5 w-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M9,13H15V11H9M9,17H15V15H9M9,9H15V7H9M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />
                 </svg>
               </motion.button>
               <motion.button 
-                whileTap={{ scale: 0.95 }}
-                className="p-2 rounded-full hover:bg-slate-100 transition-colors md:hidden"
+                whileTap={{ scale: 0.92 }}
+                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all md:hidden"
                 onClick={() => setShowSidebar(false)}
-                title="Close sidebar"
               >
-                <svg className="h-5 w-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
                 </svg>
               </motion.button>
             </>
@@ -470,58 +171,22 @@ const ChatList = ({
         </div>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex border-b border-slate-200 bg-slate-50 sticky top-16 z-10">
-        <button
-          className={`flex-1 py-3 px-2 text-sm font-medium relative flex items-center justify-center transition-colors ${activeFilter === 'open' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
-          onClick={() => setActiveFilter('open')}
-        >
-          <span className={`text-xs px-1.5 py-0.5 rounded mr-1.5 ${activeFilter === 'open' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'}`}>
-            {openChatsCount}
-          </span>
-          <span>Open</span>
-          {activeFilter === 'open' && (
-            <motion.div 
-              layoutId="activeFilter"
-              className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-t"
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-          )}
-        </button>
-        <button
-          className={`flex-1 py-3 px-2 text-sm font-medium relative flex items-center justify-center transition-colors ${activeFilter === 'waiting' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
-          onClick={() => setActiveFilter('waiting')}
-        >
-          <span className={`text-xs px-1.5 py-0.5 rounded mr-1.5 ${activeFilter === 'waiting' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'}`}>
-            {waitingChatsCount}
-          </span>
-          <span>Waiting</span>
-          {activeFilter === 'waiting' && (
-            <motion.div 
-              layoutId="activeFilter"
-              className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-t"
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-          )}
-        </button>
-      </div>
-
       {/* Chat list */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-transparent">
         {isLoading ? (
           <div className="flex flex-col space-y-3 p-4">
-            {[...Array(8)].map((_, i) => (
+            {[...Array(6)].map((_, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0.5, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1, duration: 0.3, ease: "easeOut" }}
-                className="flex items-center space-x-3 p-3 rounded-lg bg-slate-100/50"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.05 }}
+                className="flex items-center space-x-3 p-3 rounded-xl bg-white/50 backdrop-blur-sm"
               >
-                <div className="h-12 w-12 bg-slate-200/50 rounded-full animate-pulse"></div>
+                <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-100 to-blue-200 animate-pulse"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-slate-200/50 rounded w-3/4 animate-pulse"></div>
-                  <div className="h-3 bg-slate-200/50 rounded w-1/2 animate-pulse"></div>
+                  <div className="h-4 rounded-full bg-gradient-to-r from-blue-100 to-blue-200 animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }}></div>
+                  <div className="h-3 rounded-full bg-gradient-to-r from-blue-100 to-blue-200 animate-pulse" style={{ width: `${40 + Math.random() * 40}%` }}></div>
                 </div>
               </motion.div>
             ))}
@@ -533,59 +198,58 @@ const ChatList = ({
                 key={chat.id}
                 layout
                 initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={{ 
+                  opacity: 1, 
+                  y: 0,
+                  transition: { type: "spring", stiffness: 400, damping: 30 }
+                }}
                 exit={{ opacity: 0, height: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className={`relative flex items-center p-3 border-b border-slate-100 hover:bg-slate-100/30 cursor-pointer transition-colors duration-200 ${
-                  activeChat === chat.id ? 'bg-blue-50/50' : ''
-                } ${selectedChats.includes(chat.id) ? 'bg-blue-100/30' : ''}`}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className={`relative flex items-center p-3 mx-3 my-2 rounded-xl cursor-pointer transition-all duration-300 hover:bg-white/70 ${
+                  activeChat === chat.id ? 'bg-white shadow-sm' : 'bg-white/50'
+                } ${selectedChats.includes(chat.id) ? 'bg-blue-100/70' : ''}`}
                 onClick={(e) => handleChatClick(chat.id, e)}
               >
                 {isSelectMode && (
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="mr-2"
+                    className="mr-3"
                   >
-                    <input 
-                      type="checkbox" 
-                      checked={selectedChats.includes(chat.id)}
-                      onChange={() => {}}
-                      className="h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 transition-colors"
-                    />
+                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                      selectedChats.includes(chat.id) 
+                        ? 'bg-blue-500 border-blue-500' 
+                        : 'border-blue-300 hover:border-blue-400'
+                    }`}>
+                      {selectedChats.includes(chat.id) && (
+                        <motion.svg
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="h-3 w-3 text-white"
+                          viewBox="0 0 24 24"
+                        >
+                          <path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
+                        </motion.svg>
+                      )}
+                    </div>
                   </motion.div>
                 )}
 
-                <div className="relative flex-shrink-0">
-                  <div className={`h-10 w-10 rounded-full flex items-center justify-center ${chat.avatarColor}`}>
-                    {chat.name.charAt(0)}
-                  </div>
-                  {chat.isOnline && (
-                    <motion.div 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -bottom-1 -right-1"
-                    >
-                      <div className="h-3 w-3 bg-green-500 rounded-full border-2 border-slate-50"></div>
-                    </motion.div>
-                  )}
+                <div className={`h-12 w-12 rounded-full flex items-center justify-center ${chat.avatarColor} font-medium text-lg text-white`}>
+                  {chat.name.charAt(0)}
                 </div>
 
                 <div className="ml-3 flex-1 min-w-0">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-sm font-medium text-slate-800 truncate">
+                    <motion.h3 
+                      className="text-sm font-medium text-gray-800 truncate"
+                      whileHover={{ x: 2 }}
+                    >
                       {chat.name}
-                      {chat.isPinned && !isSelectMode && (
-                        <span className="ml-1 text-blue-500">
-                          <svg className="h-3 w-3 inline" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M16 12V4H17V2H7V4H8V12L6 14V16H11.2V22H12.8V16H18V14L16 12Z" />
-                          </svg>
-                        </span>
-                      )}
-                    </h3>
-                    <div className="flex items-center space-x-1">
+                    </motion.h3>
+                    <div className="flex items-center space-x-2">
                       <span className={`text-xs ${
-                        chat.viewed ? 'text-slate-500' : 'text-slate-700 font-medium'
+                        chat.viewed ? 'text-gray-500' : 'text-blue-600 font-medium'
                       } whitespace-nowrap transition-colors`}>
                         {chat.time}
                       </span>
@@ -593,23 +257,20 @@ const ChatList = ({
                         <motion.span 
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="text-xs bg-blue-500 text-white rounded-full h-5 w-5 flex items-center justify-center"
+                          className="text-xs bg-blue-500 text-white rounded-full h-5 w-5 flex items-center justify-center font-medium"
                         >
                           {chat.unread}
                         </motion.span>
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-between items-center mt-0.5">
+                  <div className="flex justify-between items-center mt-1">
                     <div className="flex-1 min-w-0">
                       <p className={`text-xs truncate ${
-                        chat.viewed ? 'text-slate-600' : 'text-slate-800 font-medium'
+                        chat.viewed ? 'text-gray-500' : 'text-gray-700 font-medium'
                       } transition-colors`}>
                         {chat.lastMessage}
                       </p>
-                      {chat.status && (
-                        <p className="text-xs text-slate-500 truncate transition-colors">{chat.status}</p>
-                      )}
                     </div>
                     {!isSelectMode && (
                       <motion.button 
@@ -617,14 +278,14 @@ const ChatList = ({
                           e.stopPropagation();
                           pinChat(chat.id);
                         }}
+                        whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        className={`ml-2 p-1 rounded-full ${
-                          chat.isPinned ? 'text-blue-500 hover:text-blue-700' : 'text-slate-400 hover:text-slate-600'
-                        } transition-colors`}
-                        title={chat.isPinned ? "Unpin chat" : "Pin chat"}
+                        className={`ml-2 p-1 rounded-lg ${
+                          chat.isPinned ? 'text-blue-500 hover:bg-blue-100/50' : 'text-gray-400 hover:bg-blue-100/30 hover:text-blue-500'
+                        } transition-all`}
                       >
-                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M16 12V4H17V2H7V4H8V12L6 14V16H11.2V22H12.8V16H18V14L16 12Z" />
+                        <svg className="h-4 w-4" viewBox="0 0 24 24">
+                          <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" />
                         </svg>
                       </motion.button>
                     )}
@@ -637,43 +298,119 @@ const ChatList = ({
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="flex flex-col items-center justify-center h-full text-center p-6"
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center justify-center h-full text-center p-8"
           >
             <motion.div 
               animate={{ 
-                rotate: [0, 5, -5, 0],
-                transition: { repeat: Infinity, duration: 2, ease: "linear" } 
+                y: [0, -5, 0],
+                transition: { repeat: Infinity, duration: 3, ease: "easeInOut" } 
               }}
-              className="bg-slate-100 p-4 rounded-full mb-4"
+              className="mb-6"
             >
-              <svg className="h-8 w-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              <svg className="h-16 w-16 text-blue-300" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M19,15H15A3,3 0 0,1 12,18A3,3 0 0,1 9,15H5V5H19M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />
               </svg>
             </motion.div>
-            <h3 className="text-sm font-medium text-slate-700 mb-1">No chats available</h3>
-            <p className="text-xs text-slate-500 max-w-xs">
-              You currently have no conversations.
+            <h3 className="text-sm font-medium text-blue-600 mb-2">No conversations yet</h3>
+            <p className="text-xs text-blue-400 max-w-xs">
+              Start a new conversation to see it appear here
             </p>
           </motion.div>
         )}
       </div>
 
-      {/* Footer with animated icons */}
-  <div className="p-3 border-t border-slate-200 bg-slate-50 rounded-b-2xl flex justify-start">
-  <div className="flex items-center gap-4">
-    <div>
-      <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </div>
-    <div>
-      <FiSliders className="h-5 w-5 text-blue-500" />
-    </div>
-  </div>
-</div>
+      {/* Footer with new chat button */}
+       <div className="p-3 border-t border-gray-700/10 bg-blue-100 backdrop-blur-sm flex justify-start">
+        <div className="flex items-center bg-blue-200/50 rounded-full p-1">
+          <motion.button
+            whileHover={{ backgroundColor: 'rgba(34, 211, 238, 0.1)' }}
+            whileTap={{ scale: 0.95 }}
+            className={`p-2 rounded-full transition-all`}
+         
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12,3L2,12H5V20H19V12H22L12,3M12,7.7L16,11.2V18H14V14H10V18H8V11.2L12,7.7Z" />
+            </svg>
+          </motion.button>
+          <motion.button
+            whileHover={{ backgroundColor: 'rgba(34, 211, 238, 0.1)' }}
+            whileTap={{ scale: 0.95 }}
+            className={`p-2 rounded-full transition-all `}
+           
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12,20A7,7 0 0,1 5,13A7,7 0 0,1 12,6A7,7 0 0,1 19,13A7,7 0 0,1 12,20M12,4A9,9 0 0,0 3,13A9,9 0 0,0 12,22A9,9 0 0,0 21,13A9,9 0 0,0 12,4M12.5,8H11V14L15.75,16.85L16.5,15.62L12.5,13.25V8M7.88,3.39L6.6,1.86L2,5.71L3.29,7.24L7.88,3.39M22,5.72L17.4,1.86L16.11,3.39L20.71,7.25L22,5.72Z" />
+            </svg>
+          </motion.button>
+        </div>
+      </div>
     </motion.div>
   );
 };
 
 export default React.memo(ChatList);
+
+// Mock data
+const mockChats = [
+  {
+    id: '1',
+    name: 'Alex Johnson',
+    lastMessage: 'Hey, how about our meeting tomorrow?',
+    time: '10:30 AM',
+    unread: 2,
+    viewed: false,
+    isPinned: true,
+    avatarColor: 'bg-gradient-to-r from-blue-500 to-blue-600'
+  },
+  {
+    id: '2',
+    name: 'Sarah Williams',
+    lastMessage: 'I sent you the design files',
+    time: 'Yesterday',
+    unread: 0,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-gradient-to-r from-purple-500 to-purple-600'
+  },
+  {
+    id: '3',
+    name: 'Michael Chen',
+    lastMessage: 'The project is due next week',
+    time: 'Yesterday',
+    unread: 5,
+    viewed: false,
+    isPinned: true,
+    avatarColor: 'bg-gradient-to-r from-green-500 to-green-600'
+  },
+  {
+    id: '4',
+    name: 'Emily Davis',
+    lastMessage: 'Thanks for your help!',
+    time: '2 days ago',
+    unread: 0,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-gradient-to-r from-pink-500 to-pink-600'
+  },
+  {
+    id: '5',
+    name: 'David Wilson',
+    lastMessage: 'Let me know when you are free',
+    time: '3 days ago',
+    unread: 0,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-gradient-to-r from-yellow-500 to-yellow-600'
+  },
+  {
+    id: '6',
+    name: 'Jessica Brown',
+    lastMessage: 'The documents have been approved',
+    time: '1 week ago',
+    unread: 0,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-gradient-to-r from-red-500 to-red-600'
+  }
+];
