@@ -1,30 +1,363 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AiOutlineMessage } from 'react-icons/ai';
+
+// ... (keep your mockChats data the same) ...
+const mockChats = [
+  {
+    id: 1,
+    name: 'Alex Johnson',
+    lastMessage: 'Hey, about the project deadline...',
+    time: '10:30 AM',
+    unread: 3,
+    isOnline: true,
+    viewed: false,
+    isPinned: true,
+    avatarColor: 'bg-[#FFD6BA] text-[#FF6F61]',
+    lastActive: '2 mins ago',
+    status: 'Project Manager',
+    messages: [
+      { id: 1, content: 'Hi there!', time: '9:15 AM', sender: 'them' },
+      { id: 2, content: 'How are you doing?', time: '9:16 AM', sender: 'them' },
+      { id: 3, content: "I'm good, thanks! How about you?", time: '9:30 AM', sender: 'me' },
+      { id: 4, content: 'Hey, about the project deadline...', time: '10:30 AM', sender: 'them' }
+    ]
+  },
+  {
+    id: 2,
+    name: 'Sarah Williams',
+    lastMessage: 'The design files are ready for review',
+    time: 'Yesterday',
+    unread: 0,
+    isOnline: false,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-[#F6D1C1] text-[#D49A89]',
+    lastActive: '1 hour ago',
+    status: 'UI/UX Designer',
+    messages: [
+      { id: 1, content: 'Working on those designs', time: 'Yesterday, 2:45 PM', sender: 'them' },
+      { id: 2, content: 'When do you think they will be ready?', time: 'Yesterday, 3:10 PM', sender: 'me' },
+      { id: 3, content: 'The design files are ready for review', time: 'Yesterday, 4:30 PM', sender: 'them' }
+    ]
+  },
+  {
+    id: 3,
+    name: 'Michael Chen',
+    lastMessage: 'Meeting notes from today',
+    time: 'Yesterday',
+    unread: 1,
+    isOnline: true,
+    viewed: false,
+    isPinned: true,
+    avatarColor: 'bg-[#FFF5E1] text-[#A68973]',
+    lastActive: '30 mins ago',
+    status: 'Developer',
+    messages: [
+      { id: 1, content: 'Can we sync up about the API?', time: 'Yesterday, 11:20 AM', sender: 'them' },
+      { id: 2, content: 'Sure, what time works for you?', time: 'Yesterday, 11:45 AM', sender: 'me' },
+      { id: 3, content: 'Meeting notes from today', time: 'Yesterday, 5:15 PM', sender: 'them' }
+    ]
+  },
+
+  {
+    id: 4,
+    name: 'Emma Davis',
+    lastMessage: 'Thanks for your help with the issue!',
+    time: '2 days ago',
+    unread: 0,
+    isOnline: false,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-[#F8CBA6] text-[#FF6F61]',
+    lastActive: '5 hours ago',
+    status: 'QA Engineer',
+    messages: [
+      { id: 1, content: 'Found an issue with the login flow', time: '2 days ago, 9:00 AM', sender: 'them' },
+      { id: 2, content: 'Looking into it now', time: '2 days ago, 9:30 AM', sender: 'me' },
+      { id: 3, content: 'Fixed! Should be working now', time: '2 days ago, 11:45 AM', sender: 'me' },
+      { id: 4, content: 'Thanks for your help with the issue!', time: '2 days ago, 12:30 PM', sender: 'them' }
+    ]
+  },
+  {
+    id: 5,
+    name: 'David Wilson',
+    lastMessage: 'The budget has been approved',
+    time: '3 days ago',
+    unread: 0,
+    isOnline: false,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-[#EFD9C1] text-[#D47452]',
+    lastActive: '1 day ago',
+    status: 'Finance Director',
+    messages: [
+      { id: 1, content: 'I need approval for the Q3 budget', time: '3 days ago, 10:00 AM', sender: 'me' },
+      { id: 2, content: 'Reviewing it now', time: '3 days ago, 2:30 PM', sender: 'them' },
+      { id: 3, content: 'The budget has been approved', time: '3 days ago, 4:45 PM', sender: 'them' }
+    ]
+  },
+  {
+    id: 6,
+    name: 'Olivia Martinez',
+    lastMessage: 'Can you send me the client requirements?',
+    time: '4 days ago',
+    unread: 2,
+    isOnline: true,
+    viewed: false,
+    isPinned: false,
+    avatarColor: 'bg-sky-100 text-sky-800',
+    lastActive: '15 mins ago',
+    status: 'Account Manager',
+    messages: [
+      { id: 1, content: 'We have a new client onboarding', time: '4 days ago, 9:00 AM', sender: 'them' },
+      { id: 2, content: 'Great! What are their requirements?', time: '4 days ago, 9:15 AM', sender: 'me' },
+      { id: 3, content: 'Can you send me the client requirements?', time: '4 days ago, 3:30 PM', sender: 'them' }
+    ]
+  },
+  {
+    id: 7,
+    name: 'James Taylor',
+    lastMessage: 'The server migration is complete',
+    time: '1 week ago',
+    unread: 0,
+    isOnline: false,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-blue-100 text-blue-800',
+    lastActive: '2 days ago',
+    status: 'DevOps Engineer',
+    messages: [
+      { id: 1, content: 'Starting server migration tonight', time: '1 week ago, 5:00 PM', sender: 'them' },
+      { id: 2, content: 'How long will it take?', time: '1 week ago, 5:30 PM', sender: 'me' },
+      { id: 3, content: 'About 4 hours, with some downtime', time: '1 week ago, 6:00 PM', sender: 'them' },
+      { id: 4, content: 'The server migration is complete', time: '1 week ago, 10:30 PM', sender: 'them' }
+    ]
+  },
+  {
+    id: 8,
+    name: 'Sophia Anderson',
+    lastMessage: 'Your vacation request was approved',
+    time: '2 weeks ago',
+    unread: 0,
+    isOnline: false,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-teal-100 text-teal-800',
+    lastActive: '3 days ago',
+    status: 'HR Manager',
+    messages: [
+      { id: 1, content: 'I submitted a vacation request', time: '2 weeks ago, 9:00 AM', sender: 'me' },
+      { id: 2, content: 'We received it, reviewing now', time: '2 weeks ago, 11:00 AM', sender: 'them' },
+      { id: 3, content: 'Your vacation request was approved', time: '2 weeks ago, 3:00 PM', sender: 'them' }
+    ]
+  },
+  {
+    id: 9,
+    name: 'Marketing Team',
+    lastMessage: 'New campaign performance metrics attached',
+    time: 'Just now',
+    unread: 5,
+    isOnline: true,
+    viewed: false,
+    isPinned: true,
+    avatarColor: 'bg-indigo-100 text-indigo-800',
+    lastActive: 'Just now',
+    status: 'Group Chat',
+    messages: [
+      { id: 1, content: 'Let me share the new campaign ideas', time: 'Today, 9:00 AM', sender: 'them' },
+      { id: 2, content: 'These look great!', time: 'Today, 9:30 AM', sender: 'me' },
+      { id: 3, content: 'When will we launch?', time: 'Today, 10:00 AM', sender: 'them' },
+      { id: 4, content: 'New campaign performance metrics attached', time: 'Just now', sender: 'them' }
+    ]
+  },
+  {
+    id: 10,
+    name: 'Support Ticket #4521',
+    lastMessage: 'Your issue has been escalated to tier 2',
+    time: '30 mins ago',
+    unread: 1,
+    isOnline: true,
+    viewed: false,
+    isPinned: false,
+    avatarColor: 'bg-purple-100 text-purple-800',
+    lastActive: '30 mins ago',
+    status: 'High Priority',
+    messages: [
+      { id: 1, content: 'I have an issue with my account', time: 'Today, 8:00 AM', sender: 'me' },
+      { id: 2, content: 'We are looking into it', time: 'Today, 8:30 AM', sender: 'them' },
+      { id: 3, content: 'Your issue has been escalated to tier 2', time: '30 mins ago', sender: 'them' }
+    ]
+  },
+  {
+    id: 11,
+    name: 'Robert Garcia',
+    lastMessage: 'The client loved the presentation!',
+    time: '1 hour ago',
+    unread: 0,
+    isOnline: true,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-cyan-100 text-cyan-800',
+    lastActive: '20 mins ago',
+    status: 'Sales Executive',
+    messages: [
+      { id: 1, content: 'Preparing for the client meeting', time: 'Today, 9:00 AM', sender: 'them' },
+      { id: 2, content: 'Good luck! Let me know how it goes', time: 'Today, 9:15 AM', sender: 'me' },
+      { id: 3, content: 'The client loved the presentation!', time: '1 hour ago', sender: 'them' }
+    ]
+  }
+,
+  {
+    id: 12,
+    name: 'Lisa Thompson',
+    lastMessage: 'Can we reschedule our meeting?',
+    time: '3 hours ago',
+    unread: 2,
+    isOnline: false,
+    viewed: false,
+    isPinned: false,
+    avatarColor: 'bg-sky-100 text-sky-800',
+    lastActive: '4 hours ago',
+    status: 'Product Manager',
+    messages: [
+      { id: 1, content: 'About our 2pm meeting tomorrow', time: 'Today, 11:00 AM', sender: 'them' },
+      { id: 2, content: 'Yes, what about it?', time: 'Today, 11:30 AM', sender: 'me' },
+      { id: 3, content: 'Can we reschedule our meeting?', time: '3 hours ago', sender: 'them' }
+    ]
+  },
+  {
+    id: 13,
+    name: 'Daniel Kim',
+    lastMessage: 'The analytics dashboard is ready',
+    time: '5 hours ago',
+    unread: 0,
+    isOnline: false,
+    viewed: true,
+    isPinned: true,
+    avatarColor: 'bg-blue-100 text-blue-800',
+    lastActive: '6 hours ago',
+    status: 'Data Analyst',
+    messages: [
+      { id: 1, text: 'Working on the analytics dashboard', time: 'Yesterday, 4:00 PM', sender: 'them' },
+      { id: 2, text: 'When will it be ready?', time: 'Yesterday, 4:30 PM', sender: 'me' },
+      { id: 3, text: 'The analytics dashboard is ready', time: '5 hours ago', sender: 'them' }
+    ]
+  },
+  {
+    id: 14,
+    name: 'Jennifer Lee',
+    lastMessage: 'Thanks for the quick response!',
+    time: 'Yesterday',
+    unread: 0,
+    isOnline: true,
+    viewed: true,
+    isPinned: false,
+    avatarColor: 'bg-teal-100 text-teal-800',
+    lastActive: '45 mins ago',
+    status: 'Customer Support',
+    messages: [
+      { id: 1, content: 'I have a question about the subscription', time: 'Yesterday, 2:00 PM', sender: 'them' },
+      { id: 2, content: 'Sure, what would you like to know?', time: 'Yesterday, 2:05 PM', sender: 'me' },
+      { id: 3, content: 'Thanks for the quick response!', time: 'Yesterday, 2:30 PM', sender: 'them' }
+    ]
+  },
+  {
+    id: 15,
+    name: 'Thomas Brown',
+    lastMessage: 'The new feature is deployed to staging',
+    time: '2 days ago',
+    unread: 1,
+    isOnline: false,
+    viewed: false,
+    isPinned: false,
+    avatarColor: 'bg-indigo-100 text-indigo-800',
+    lastActive: '1 day ago',
+    status: 'Tech Lead',
+    messages: [
+      { id: 1, content: 'Working on the new feature deployment', time: '2 days ago, 10:00 AM', sender: 'them' },
+      { id: 2, content: 'Keep me updated on progress', time: '2 days ago, 10:30 AM', sender: 'me' },
+      { id: 3, content: 'The new feature is deployed to staging', time: '2 days ago, 4:00 PM', sender: 'them' }
+    ]
+  }
+];
 
 const ChatList = ({ 
   chats, 
   setChats, 
   activeChat, 
   setActiveChat,
-  setShowSidebar 
+  setShowSidebar,
+  showSidebar 
 }) => {
+  const [activeFilter, setActiveFilter] = useState('open');
   const [selectedChats, setSelectedChats] = useState([]);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize with mock data if empty
   useEffect(() => {
     const timer = setTimeout(() => {
       if (chats.length === 0) {
         setChats(mockChats);
       }
       setIsLoading(false);
-    }, 800); // Simulate loading
+    }, 1200);
     
     return () => clearTimeout(timer);
   }, [chats.length, setChats]);
 
-  const handleChatClick = useCallback((chatId, e) => {
+  // Enhanced animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { 
+      opacity: 0,
+      x: -50,
+      scale: 0.8
+    },
+    show: { 
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 20
+      }
+    }
+  };
+
+  const shimmerVariants = {
+    hidden: { 
+      opacity: 0, 
+      x: -100,
+      scale: 0.95
+    },
+    show: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 250,
+        damping: 25
+      }
+    }
+  };
+
+  const openChatsCount = chats.filter(chat => !chat.viewed || chat.unread > 0).length;
+  const waitingChatsCount = chats.filter(chat => chat.viewed && chat.unread === 0).length;
+
+  const handleChatClick = (chatId) => {
     if (isSelectMode) {
       setSelectedChats(prev => 
         prev.includes(chatId) 
@@ -33,7 +366,7 @@ const ChatList = ({
       );
       return;
     }
-
+  
     setChats(prevChats => 
       prevChats.map(chat => 
         chat.id === chatId 
@@ -41,30 +374,20 @@ const ChatList = ({
           : chat
       )
     );
-
+  
     setTimeout(() => {
       setActiveChat(chatId);
       if (window.innerWidth < 768) {
         setShowSidebar(false);
       }
     }, 150);
-  }, [isSelectMode, setActiveChat, setChats, setShowSidebar]);
-
+  };
+  
   const toggleSelectMode = () => {
     setIsSelectMode(!isSelectMode);
     if (isSelectMode) {
       setSelectedChats([]);
     }
-  };
-
-  const pinChat = (chatId) => {
-    setChats(prevChats => 
-      prevChats.map(chat => 
-        chat.id === chatId 
-          ? { ...chat, isPinned: !chat.isPinned } 
-          : chat
-      )
-    );
   };
 
   const archiveSelected = () => {
@@ -85,332 +408,420 @@ const ChatList = ({
 
   return (
     <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full md:w-1/4 flex flex-col h-full overflow-hidden font-sans bg-gradient-to-b from-blue-50 to-blue-100 text-gray-800 rounded-xl"
+      initial={{ x: -300, opacity: 0 }}
+      animate={{ 
+        x: showSidebar ? 0 : -300,
+        opacity: showSidebar ? 1 : 0
+      }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="h-full w-full flex flex-col bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#e2e8f0]"
     >
-      {/* Header with actions */}
-      <div className="p-4 flex items-center justify-between bg-white/80 backdrop-blur-sm border-b border-blue-200 rounded-t-xl sticky top-0 z-20">
-        <div className="flex items-center space-x-2">
-          {isSelectMode ? (
-            <>
-              <motion.button 
-                onClick={toggleSelectMode}
-                whileTap={{ scale: 0.92 }}
-                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all"
-              >
-                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-                </svg>
-              </motion.button>
-              <motion.span 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ type: "spring" }}
-                className="text-sm font-medium text-blue-600"
-              >
-                {selectedChats.length} selected
-              </motion.span>
-            </>
-          ) : (
-            <motion.h1 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-lg font-semibold text-blue-800"
-            >
-              Conversations
-            </motion.h1>
-          )}
-        </div>
-        
-        <div className="flex items-center space-x-1">
-          {isSelectMode ? (
-            <>
-              <motion.button 
-                onClick={archiveSelected}
-                whileTap={{ scale: 0.92 }}
-                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all"
-              >
-                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M20.54,5.23L19.15,3.55C18.88,3.21 18.47,3 18,3H6C5.53,3 5.12,3.21 4.84,3.55L3.46,5.23C3.17,5.57 3,6.02 3,6.5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V6.5C21,6.02 20.83,5.57 20.54,5.23M6.24,5H17.76L18.18,5.5L17.12,6.5L6.89,6.5L5.82,5.5L6.24,5M5,19V8H19V19H5Z" />
-                </svg>
-              </motion.button>
-              <motion.button 
-                onClick={deleteSelected}
-                whileTap={{ scale: 0.92 }}
-                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all"
-              >
-                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
-                </svg>
-              </motion.button>
-            </>
-          ) : (
-            <>
-              <motion.button 
-                onClick={toggleSelectMode}
-                whileTap={{ scale: 0.92 }}
-                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all"
-              >
-                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9,13H15V11H9M9,17H15V15H9M9,9H15V7H9M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />
-                </svg>
-              </motion.button>
-              <motion.button 
-                whileTap={{ scale: 0.92 }}
-                className="p-2 rounded-lg hover:bg-blue-100/50 transition-all md:hidden"
-                onClick={() => setShowSidebar(false)}
-              >
-                <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-                </svg>
-              </motion.button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Chat list */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-transparent">
-        {isLoading ? (
-          <div className="flex flex-col space-y-3 p-4">
-            {[...Array(6)].map((_, i) => (
-              <motion.div
-                key={i}
+      {/* Header */}
+      <motion.div 
+        initial={{ y: -30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 25 }}
+        className="px-6 py-4 border-b border-[#e2e8f0] bg-gradient-to-r from-white/80 via-[#f8fafc]/80 to-[#f1f5f9]/80 backdrop-blur-sm"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            {isSelectMode ? (
+              <>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={toggleSelectMode}
+                  className="p-2 rounded-full hover:bg-[#e2e8f0]/50 transition-colors"
+                >
+                  <svg className="h-5 w-5 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </motion.button>
+                <motion.span 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-sm font-medium text-[#64748b]"
+                >
+                  {selectedChats.length} selected
+                </motion.span>
+              </>
+            ) : (
+              <motion.h1 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.05 }}
-                className="flex items-center space-x-3 p-3 rounded-xl bg-white/50 backdrop-blur-sm"
+                className="text-xl font-semibold bg-gradient-to-r from-[#334155] to-[#64748b] bg-clip-text text-transparent"
               >
-                <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-100 to-blue-200 animate-pulse"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 rounded-full bg-gradient-to-r from-blue-100 to-blue-200 animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }}></div>
-                  <div className="h-3 rounded-full bg-gradient-to-r from-blue-100 to-blue-200 animate-pulse" style={{ width: `${40 + Math.random() * 40}%` }}></div>
-                </div>
-              </motion.div>
-            ))}
+                Messages
+              </motion.h1>
+            )}
           </div>
-        ) : chats.length > 0 ? (
-          <AnimatePresence initial={false}>
-            {chats.map((chat) => (
-              <motion.div
-                key={chat.id}
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: 0,
-                  transition: { type: "spring", stiffness: 400, damping: 30 }
-                }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className={`relative flex items-center p-3 mx-3 my-2 rounded-xl cursor-pointer transition-all duration-300 hover:bg-white/70 ${
-                  activeChat === chat.id ? 'bg-white shadow-sm' : 'bg-white/50'
-                } ${selectedChats.includes(chat.id) ? 'bg-blue-100/70' : ''}`}
-                onClick={(e) => handleChatClick(chat.id, e)}
+          
+          <div className="flex items-center space-x-2">
+            {isSelectMode ? (
+              <>
+                <button 
+                  onClick={archiveSelected}
+                  className="p-2 rounded-full hover:bg-[#e2e8f0]/50 transition-colors"
+                  title="Archive"
+                >
+                  <svg className="h-5 w-5 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                </button>
+                <button 
+                  onClick={deleteSelected}
+                  className="p-2 rounded-full hover:bg-[#e2e8f0]/50 transition-colors"
+                  title="Delete"
+                >
+                  <svg className="h-5 w-5 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 011.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <button 
+                onClick={toggleSelectMode}
+                className="p-2 rounded-full hover:bg-[#e2e8f0]/50 transition-colors"
+                title="Select Messages"
               >
-                {isSelectMode && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mr-3"
-                  >
-                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                      selectedChats.includes(chat.id) 
-                        ? 'bg-blue-500 border-blue-500' 
-                        : 'border-blue-300 hover:border-blue-400'
-                    }`}>
-                      {selectedChats.includes(chat.id) && (
-                        <motion.svg
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="h-3 w-3 text-white"
-                          viewBox="0 0 24 24"
-                        >
-                          <path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
-                        </motion.svg>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
+                <svg className="h-5 w-5 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      </motion.div>
 
-                <div className={`h-12 w-12 rounded-full flex items-center justify-center ${chat.avatarColor} font-medium text-lg text-white`}>
-                  {chat.name.charAt(0)}
-                </div>
+      {/* Filter tabs */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="border-b border-[#e2e8f0] bg-gradient-to-r from-white/80 via-[#f8fafc]/80 to-[#f1f5f9]/80 backdrop-blur-sm"
+      >
+        <div className="flex px-2">
+          <button
+            className={`flex-1 py-3 px-4 text-sm font-medium relative transition-all duration-300 ${
+              activeFilter === 'open' 
+                ? 'text-[#2563eb]' 
+                : 'text-[#64748b] hover:text-[#475569]'
+            }`}
+            onClick={() => setActiveFilter('open')}
+          >
+            <span className="flex items-center justify-center">
+              <motion.span 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={`mr-2 px-2.5 py-1 rounded-full text-xs ${
+                  activeFilter === 'open' 
+                    ? 'bg-[#bfdbfe] text-[#1d4ed8]' 
+                    : 'bg-[#f1f5f9] text-[#64748b]'
+                }`}
+              >
+                {openChatsCount}
+              </motion.span>
+              Open
+            </span>
+            {activeFilter === 'open' && (
+              <motion.div 
+                layoutId="activeTab"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563eb]"
+              />
+            )}
+          </button>
+          <button
+            className={`flex-1 py-3 px-4 text-sm font-medium relative transition-all duration-300 ${
+              activeFilter === 'waiting' 
+                ? 'text-[#2563eb]' 
+                : 'text-[#64748b] hover:text-[#475569]'
+            }`}
+            onClick={() => setActiveFilter('waiting')}
+          >
+            <span className="flex items-center justify-center">
+              <motion.span 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={`mr-2 px-2.5 py-1 rounded-full text-xs ${
+                  activeFilter === 'waiting' 
+                    ? 'bg-[#bfdbfe] text-[#1d4ed8]' 
+                    : 'bg-[#f1f5f9] text-[#64748b]'
+                }`}
+              >
+                {waitingChatsCount}
+              </motion.span>
+              Waiting
+            </span>
+            {activeFilter === 'waiting' && (
+              <motion.div 
+                layoutId="activeTab"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563eb]"
+              />
+            )}
+          </button>
+        </div>
+      </motion.div>
 
-                <div className="ml-3 flex-1 min-w-0">
-                  <div className="flex justify-between items-center">
-                    <motion.h3 
-                      className="text-sm font-medium text-gray-800 truncate"
-                      whileHover={{ x: 2 }}
+      {/* Chat list */}
+      <div className="flex-1 overflow-y-auto px-4 py-2 scrollbar-thin scrollbar-thumb-[#cbd5e1] scrollbar-track-transparent">
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit={{ 
+                opacity: 0, 
+                scale: 0.95,
+                transition: { duration: 0.2 } 
+              }}
+              className="space-y-3 py-2"
+            >
+              {[...Array(8)].map((_, i) => (
+                <motion.div
+                  key={`shimmer-${i}`}
+                  variants={shimmerVariants}
+                  custom={i}
+                  className="flex items-center space-x-4 p-3 rounded-xl bg-gradient-to-r from-white/50 via-[#f8fafc]/50 to-[#f1f5f9]/50 backdrop-blur-sm"
+                >
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-r from-[#e2e8f0] via-[#f1f5f9] to-[#e2e8f0] animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gradient-to-r from-[#e2e8f0] via-[#f1f5f9] to-[#e2e8f0] rounded-full w-3/4 animate-pulse" />
+                    <div className="h-3 bg-gradient-to-r from-[#e2e8f0] via-[#f1f5f9] to-[#e2e8f0] rounded-full w-1/2 animate-pulse" />
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : chats.length > 0 ? (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="space-y-2 py-2"
+            >
+              {chats.map((chat, index) => (
+                <motion.div
+                  key={chat.id}
+                  variants={itemVariants}
+                  custom={index}
+                  whileHover={{ 
+                    scale: 1.02, 
+                    x: 8,
+                    transition: { type: "spring", stiffness: 400, damping: 25 }
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleChatClick(chat.id)}
+                  className={`flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300
+                    ${activeChat === chat.id 
+                      ? 'bg-gradient-to-r from-[#dbeafe] via-[#bfdbfe] to-[#dbeafe] shadow-md border border-[#93c5fd] transform scale-[1.02]' 
+                      : 'hover:bg-gradient-to-r hover:from-white hover:to-[#f8fafc] border border-transparent hover:border-[#e2e8f0] hover:shadow-lg'
+                    }`}
+                >
+                  <div className="relative">
+                    <motion.div 
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                      className={`h-12 w-12 rounded-full flex items-center justify-center shadow-md ${
+                        chat.avatarColor || 'bg-gradient-to-br from-[#dbeafe] to-[#93c5fd]'
+                      }`}
                     >
-                      {chat.name}
-                    </motion.h3>
-                    <div className="flex items-center space-x-2">
-                      <span className={`text-xs ${
-                        chat.viewed ? 'text-gray-500' : 'text-blue-600 font-medium'
-                      } whitespace-nowrap transition-colors`}>
-                        {chat.time}
-                      </span>
+                      <span className="text-lg font-medium text-[#1e40af]">{chat.name.charAt(0)}</span>
+                    </motion.div>
+                    {chat.isOnline && (
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 bg-[#22c55e] rounded-full border-2 border-white shadow-sm"
+                      />
+                    )}
+                  </div>
+                  
+                  <div className="ml-4 flex-1 min-w-0">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-sm font-semibold text-[#334155] truncate">
+                        {chat.name}
+                      </h3>
+                      <span className="text-xs text-[#64748b] font-medium">{chat.time}</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-1">
+                      <p className="text-sm text-[#64748b] truncate">{chat.lastMessage}</p>
                       {chat.unread > 0 && (
                         <motion.span 
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="text-xs bg-blue-500 text-white rounded-full h-5 w-5 flex items-center justify-center font-medium"
+                          transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 17,
+                            delay: 0.1
+                          }}
+                          className="ml-2 px-2 py-0.5 bg-[#bfdbfe] text-[#1d4ed8] rounded-full text-xs font-medium"
                         >
                           {chat.unread}
                         </motion.span>
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-between items-center mt-1">
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs truncate ${
-                        chat.viewed ? 'text-gray-500' : 'text-gray-700 font-medium'
-                      } transition-colors`}>
-                        {chat.lastMessage}
-                      </p>
-                    </div>
-                    {!isSelectMode && (
-                      <motion.button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          pinChat(chat.id);
-                        }}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className={`ml-2 p-1 rounded-lg ${
-                          chat.isPinned ? 'text-blue-500 hover:bg-blue-100/50' : 'text-gray-400 hover:bg-blue-100/30 hover:text-blue-500'
-                        } transition-all`}
-                      >
-                        <svg className="h-4 w-4" viewBox="0 0 24 24">
-                          <path fill="currentColor" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" />
-                        </svg>
-                      </motion.button>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        ) : (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col items-center justify-center h-full text-center p-8"
-          >
-            <motion.div 
-              animate={{ 
-                y: [0, -5, 0],
-                transition: { repeat: Infinity, duration: 3, ease: "easeInOut" } 
-              }}
-              className="mb-6"
-            >
-              <svg className="h-16 w-16 text-blue-300" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M19,15H15A3,3 0 0,1 12,18A3,3 0 0,1 9,15H5V5H19M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />
-              </svg>
+                </motion.div>
+              ))}
             </motion.div>
-            <h3 className="text-sm font-medium text-blue-600 mb-2">No conversations yet</h3>
-            <p className="text-xs text-blue-400 max-w-xs">
-              Start a new conversation to see it appear here
-            </p>
-          </motion.div>
-        )}
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
+              className="flex flex-col items-center justify-center h-full text-center p-6"
+            >
+              <motion.div 
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ 
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  delay: 0.3
+                }}
+                className="w-20 h-20 bg-gradient-to-br from-[#dbeafe] to-[#93c5fd] rounded-full flex items-center justify-center mb-4 shadow-inner"
+              >
+                <AiOutlineMessage className="h-10 w-10 text-[#2563eb]" />
+              </motion.div>
+              <motion.h3 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="text-base font-medium text-[#334155] mb-2"
+              >
+                No messages yet
+              </motion.h3>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="text-sm text-[#64748b]"
+              >
+                Start a conversation to see messages here
+              </motion.p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Footer with new chat button */}
-       <div className="p-3 border-t border-gray-700/10 bg-blue-100 backdrop-blur-sm flex justify-start">
-        <div className="flex items-center bg-blue-200/50 rounded-full p-1">
-          <motion.button
-            whileHover={{ backgroundColor: 'rgba(34, 211, 238, 0.1)' }}
-            whileTap={{ scale: 0.95 }}
-            className={`p-2 rounded-full transition-all`}
-         
-          >
-            <svg className="h-5 w-5" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M12,3L2,12H5V20H19V12H22L12,3M12,7.7L16,11.2V18H14V14H10V18H8V11.2L12,7.7Z" />
-            </svg>
-          </motion.button>
-          <motion.button
-            whileHover={{ backgroundColor: 'rgba(34, 211, 238, 0.1)' }}
-            whileTap={{ scale: 0.95 }}
-            className={`p-2 rounded-full transition-all `}
-           
-          >
-            <svg className="h-5 w-5" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M12,20A7,7 0 0,1 5,13A7,7 0 0,1 12,6A7,7 0 0,1 19,13A7,7 0 0,1 12,20M12,4A9,9 0 0,0 3,13A9,9 0 0,0 12,22A9,9 0 0,0 21,13A9,9 0 0,0 12,4M12.5,8H11V14L15.75,16.85L16.5,15.62L12.5,13.25V8M7.88,3.39L6.6,1.86L2,5.71L3.29,7.24L7.88,3.39M22,5.72L17.4,1.86L16.11,3.39L20.71,7.25L22,5.72Z" />
-            </svg>
-          </motion.button>
+      {/* Footer */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4, type: "spring", stiffness: 300, damping: 25 }}
+        className="mt-auto border-t border-[#e2e8f0] bg-gradient-to-r from-white/80 via-[#f8fafc]/80 to-[#f1f5f9]/80 backdrop-blur-sm p-3"
+      >
+        <div className="flex items-center">
+          <div className="bg-gradient-to-r from-blue-50/50 to-indigo-50/30 p-1.5 rounded-xl flex space-x-2 shadow-sm relative overflow-hidden">
+            {/* Container hover effect */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-blue-100/10 via-indigo-100/10 to-blue-100/10 opacity-0 hover:opacity-100 transition-opacity duration-500"
+              animate={{
+                opacity: [0, 0.5, 0],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="relative p-2 rounded-lg bg-white shadow-sm transition-all duration-300 group"
+              title="Menu"
+            >
+              <motion.div
+                className="absolute inset-0 bg-blue-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                animate={{
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+              <svg 
+                className="w-5 h-5 text-blue-600 transition-all duration-300 group-hover:scale-110 relative z-10" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              <motion.div
+                className="absolute -bottom-1 left-1/2 w-8 h-0.5 bg-blue-500/50 rounded-full -translate-x-1/2"
+                initial={{ opacity: 0, width: "0%" }}
+                animate={{ opacity: 1, width: "60%" }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="relative p-2 rounded-lg hover:bg-white/80 transition-all duration-300 group"
+              title="Settings"
+            >
+              <motion.div
+                className="absolute inset-0 bg-blue-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                animate={{
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                className="relative z-10"
+              >
+                <svg 
+                  className="w-5 h-5 text-gray-500 transition-all duration-300 group-hover:text-blue-600 group-hover:scale-110" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </motion.div>
+            </motion.button>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
 
-export default React.memo(ChatList);
-
-// Mock data
-const mockChats = [
-  {
-    id: '1',
-    name: 'Alex Johnson',
-    lastMessage: 'Hey, how about our meeting tomorrow?',
-    time: '10:30 AM',
-    unread: 2,
-    viewed: false,
-    isPinned: true,
-    avatarColor: 'bg-gradient-to-r from-blue-500 to-blue-600'
-  },
-  {
-    id: '2',
-    name: 'Sarah Williams',
-    lastMessage: 'I sent you the design files',
-    time: 'Yesterday',
-    unread: 0,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-gradient-to-r from-purple-500 to-purple-600'
-  },
-  {
-    id: '3',
-    name: 'Michael Chen',
-    lastMessage: 'The project is due next week',
-    time: 'Yesterday',
-    unread: 5,
-    viewed: false,
-    isPinned: true,
-    avatarColor: 'bg-gradient-to-r from-green-500 to-green-600'
-  },
-  {
-    id: '4',
-    name: 'Emily Davis',
-    lastMessage: 'Thanks for your help!',
-    time: '2 days ago',
-    unread: 0,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-gradient-to-r from-pink-500 to-pink-600'
-  },
-  {
-    id: '5',
-    name: 'David Wilson',
-    lastMessage: 'Let me know when you are free',
-    time: '3 days ago',
-    unread: 0,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-gradient-to-r from-yellow-500 to-yellow-600'
-  },
-  {
-    id: '6',
-    name: 'Jessica Brown',
-    lastMessage: 'The documents have been approved',
-    time: '1 week ago',
-    unread: 0,
-    viewed: true,
-    isPinned: false,
-    avatarColor: 'bg-gradient-to-r from-red-500 to-red-600'
-  }
-];
+export default ChatList;

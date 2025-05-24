@@ -1,4 +1,3 @@
-// AIAvatar.js
 import React from 'react';
 
 const AIAvatar = ({ isTyping }) => {

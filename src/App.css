@@ -2,3 +2,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom underline animation for AI Copilot and Details */
+@layer components {
+  .ai-tabs h3 {
+    @apply relative font-medium text-gray-800 text-sm cursor-pointer transition-colors;
+    font-family: "Futura Now Headline", "Lucida Sans", Tahoma, sans-serif;
+  }
+
+  .ai-tabs h3::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1.5px;
+    background-color: rgb(144, 137, 137);
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.3s ease;
+  }
+
+  .ai-tabs h3.hovered::after,
+  .ai-tabs h3.active::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-5px, -5px);
+  }
+  50% {
+    transform: translate(5px, 5px);
+  }
+  75% {
+    transform: translate(-5px, 5px);
+  }
+  100% {
+    transform: translate(5px, -5px);
+  }
+}
+
+.mask-fade-top {
+  mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+}
